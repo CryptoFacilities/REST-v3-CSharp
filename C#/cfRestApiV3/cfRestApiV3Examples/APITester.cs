@@ -52,12 +52,12 @@ namespace com.cryptofacilities.REST.v3.Examples
             Console.WriteLine("getTickers:\n" + result);
 
             //get orderbook
-            symbol = "FI_XBTUSD_180316";
+            symbol = "PI_XBTUSD";
             result = methods.getOrderBook(symbol);
             Console.WriteLine("getOrderBook:\n" + result);
 
             //get history
-            symbol = "FI_XBTUSD_180316";
+            symbol = "PI_XBTUSD";
             result = methods.getHistory(symbol, new DateTime(2016, 01, 20));
             Console.WriteLine("getHistory:\n" + result);
 
@@ -71,7 +71,7 @@ namespace com.cryptofacilities.REST.v3.Examples
 
             //send limit order
             orderType = "lmt";
-            symbol = "FI_XBTUSD_180316";
+            symbol = "PI_XBTUSD";
             side = "buy";
             size = 1.0M;
             limitPrice = 1.0M;
@@ -80,7 +80,7 @@ namespace com.cryptofacilities.REST.v3.Examples
 
             //send stop order
             orderType = "stp";
-            symbol = "FI_XBTUSD_180316";
+            symbol = "PI_XBTUSD";
             side = "buy";
             size = 1.0M;
             limitPrice = 1.1M;
@@ -101,7 +101,7 @@ namespace com.cryptofacilities.REST.v3.Examples
                     ""order"": ""send"",
                     ""order_tag"": ""1"",
                     ""orderType"": ""lmt"",
-                    ""symbol"": ""FI_XBTUSD_180316"",
+                    ""symbol"": ""PI_XBTUSD"",
                     ""side"": ""buy"",
                     ""size"": 1,
                     ""limitPrice"": 1.00,
@@ -110,7 +110,7 @@ namespace com.cryptofacilities.REST.v3.Examples
                     ""order"": ""send"",
                     ""order_tag"": ""2"",
                     ""orderType"": ""stp"",
-                    ""symbol"": ""FI_XBTUSD_180316"",             
+                    ""symbol"": ""PI_XBTUSD"",             
                     ""side"": ""buy"",
                     ""size"": 1,
                     ""limitPrice"": 2.00,
@@ -125,6 +125,9 @@ namespace com.cryptofacilities.REST.v3.Examples
             result = methods.sendBatchOrder(jsonElement);
             Console.WriteLine("sendBatchOrder:\n" + result);
 
+            //cancel all orders
+            result = methods.cancelAllOrders();
+            Console.WriteLine("cancelAllOrders:\n" + result);
 
             //get open orders
             result = methods.getOpenOrders();
@@ -139,11 +142,15 @@ namespace com.cryptofacilities.REST.v3.Examples
             result = methods.getOpenPositions();
             Console.WriteLine("getOpenPositions:\n" + result);
 
+            //get notificaitons
+            result = methods.getNotifications();
+            Console.WriteLine("getNotifications:\n" + result);
+
             //send xbt withdrawal request
             var targetAddress = "xxxxxxxxxxxxx";
-            var currency = "xbt"
+            var currency = "xbt";
             var amount = 0.123M;
-            result = methods.sendWithdrawal(targetAddress, amount);
+            result = methods.sendWithdrawal(targetAddress, currency, amount);
             Console.WriteLine("sendWithdrawal:\n" + result);
 
             //get xbt transfers

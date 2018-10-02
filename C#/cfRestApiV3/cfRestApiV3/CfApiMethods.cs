@@ -102,7 +102,7 @@ namespace com.cryptofacilities.REST.v3
                     client.Headers.Add("Authent", signature);
                 }
 
-                if (requestMethod == "POST")
+                if (requestMethod == "POST" && postBody.Length > 0)
                 {
                     NameValueCollection parameters = new NameValueCollection();
                     String[] bodyArray = postBody.Split('&');
@@ -217,6 +217,13 @@ namespace com.cryptofacilities.REST.v3
             return makeRequest("POST", endpoint, String.Empty, postBody);
         }
 
+        // Cancels all orders
+        public String cancelAllOrders()
+        {
+            var endpoint = "/api/v3/cancelallorders";
+            return makeRequest("POST", endpoint);
+        }
+
         // Places or cancels orders in batch
         public String sendBatchOrder(String jsonElement)
         {
@@ -251,6 +258,13 @@ namespace com.cryptofacilities.REST.v3
         public String getOpenPositions()
         {
             var endpoint = "/api/v3/openpositions";
+            return makeRequest("GET", endpoint);
+        }
+
+        // Returns the platform noticiations
+        public String getNotifications()
+        {
+            var endpoint = "/api/v3/notifications";
             return makeRequest("GET", endpoint);
         }
 
