@@ -27,15 +27,15 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
+
 namespace com.cryptofacilities.REST.v3
 {
     public class CfApiMethods
     {
-        private String apiPath;
-        private String apiPublicKey;
-        private String apiPrivateKey;
-        private Boolean checkCertificate;
-        private int nonce;
+        private readonly String apiPath;
+        private readonly String apiPublicKey;
+        private readonly String apiPrivateKey;
+        private readonly Boolean checkCertificate;
 
         public CfApiMethods(String apiPath, String apiPublicKey, String apiPrivateKey, Boolean checkCertificate)
         {
@@ -43,7 +43,9 @@ namespace com.cryptofacilities.REST.v3
             this.apiPublicKey = apiPublicKey;
             this.apiPrivateKey = apiPrivateKey;
             this.checkCertificate = checkCertificate;
-            nonce = 0;
+            
+            // TLS 1.2+ Supported 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
 
         public CfApiMethods(String apiPath, Boolean checkCertificate) : this(apiPath, null, null, checkCertificate) { }
@@ -51,10 +53,10 @@ namespace com.cryptofacilities.REST.v3
 
         #region utility methods
         // Signs a message
-        private String signMessage(String endpoint, String nonce, String postData)
+        private String SignMessage(String endpoint, String postData)
         {
-            // Step 1: concatenate postData, nonce + endpoint
-            var message = postData + nonce + endpoint;
+            // Step 1: concatenate postData + endpoint
+            var message = postData + endpoint;
 
             //Step 2: hash the result of step 1 with SHA256
             var hash256 = new SHA256Managed();
@@ -72,17 +74,10 @@ namespace com.cryptofacilities.REST.v3
 
         }
 
-        // Returns a unique nonce
-        private String createNonce()
-        {
-            nonce += 1;
-            long timestamp = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds);
-            return timestamp.ToString() + nonce.ToString("D4");
-        }
-
         // Sends an HTTP request
-        private String makeRequest(String requestMethod, String endpoint, String postUrl, String postBody)
+        private String MakeRequest(String requestMethod, String endpoint, String postUrl = "", String postBody = "")
         {
+           
             if (!checkCertificate)
             {
                 ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
@@ -94,11 +89,9 @@ namespace com.cryptofacilities.REST.v3
                 //create authentication headers
                 if (apiPublicKey != null && apiPrivateKey != null)
                 {
-                    var nonce = createNonce();
                     var postData = postUrl + postBody;
-                    var signature = signMessage(endpoint, nonce, postData);
+                    var signature = SignMessage(endpoint, postData);
                     client.Headers.Add("APIKey", apiPublicKey);
-                    client.Headers.Add("Nonce", nonce);
                     client.Headers.Add("Authent", signature);
                 }
 
@@ -121,75 +114,61 @@ namespace com.cryptofacilities.REST.v3
                 }
             }
         }
-
-        private String makeRequest(String requestMethod, String endpoint)
-        {
-            return makeRequest(requestMethod, endpoint, String.Empty, String.Empty);
-        }
         #endregion
 
 
         #region public endpoints
         // Returns all instruments with specifications
-        public String getInstruments()
+        public String GetInstruments()
         {
             var endpoint = "/api/v3/instruments";
-            return makeRequest("GET", endpoint);
+            return MakeRequest("GET", endpoint);
         }
 
 
         // Returns market data for all instruments
-        public String getTickers()
+        public String GetTickers()
         {
             var endpoint = "/api/v3/tickers";
-            return makeRequest("GET", endpoint);
+            return MakeRequest("GET", endpoint);
         }
 
         // Returns the entire order book for a futures
-        public String getOrderBook(String symbol)
+        public String GetOrderBook(String symbol)
         {
             var endpoint = "/api/v3/orderbook";
             var postUrl = "symbol=" + symbol;
-            return makeRequest("GET", endpoint, postUrl, String.Empty);
+            return MakeRequest("GET", endpoint, postUrl);
         }
 
         // Returns historical data for futures and indices
-        public String getHistory(String symbol, DateTime lastTime)
+        public String GetHistory(String symbol, DateTime lastTime)
         {
             var endpoint = "/api/v3/history";
             var postUrl = "symbol=" + symbol + "&lastTime=" + lastTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-            return makeRequest("GET", endpoint, postUrl, String.Empty);
+            return MakeRequest("GET", endpoint, postUrl);
         }
 
         // Returns historical data for futures and indices
-        public String getHistory(String symbol)
+        public String GetHistory(String symbol)
         {
             var endpoint = "/api/v3/history";
             var postUrl = "symbol=" + symbol;
-            return makeRequest("GET", endpoint, postUrl, String.Empty);
+            return MakeRequest("GET", endpoint, postUrl);
         }
         #endregion
 
         #region private endpoints
 
         // Returns key account information
-        // Deprecated because it returns info about the Futures margin account only
-        [Obsolete("getAccount is deprecated, please use getAccounts instead.")]
-        public String getAccount()
-        {
-            var endpoint = "/api/v3/account";
-            return makeRequest("GET", endpoint);
-        }
-
-        // Returns key account information
-        public String getAccounts()
+        public String GetAccounts()
         {
             var endpoint = "/api/v3/accounts";
-            return makeRequest("GET", endpoint);
+            return MakeRequest("GET", endpoint);
         }
 
         // Places an order
-        public String sendOrder(String orderType, String symbol, String side, Decimal size, Decimal limitPrice, Decimal stopPrice = 0M)
+        public String SendOrder(String orderType, String symbol, String side, Decimal size, Decimal limitPrice, Decimal stopPrice = 0M)
         {
             var endpoint = "/api/v3/sendorder";
             String postBody;
@@ -206,89 +185,89 @@ namespace com.cryptofacilities.REST.v3
                 postBody = String.Empty;
             }
 
-            return makeRequest("POST", endpoint, String.Empty, postBody);
+            return MakeRequest("POST", endpoint, String.Empty, postBody);
         }
 
         // Cancels an order
-        public String cancelOrder(String orderId)
+        public String CancelOrder(String orderId)
         {
             var endpoint = "/api/v3/cancelorder";
             var postBody = "order_id=" + orderId;
-            return makeRequest("POST", endpoint, String.Empty, postBody);
+            return MakeRequest("POST", endpoint, String.Empty, postBody);
         }
 
         // Cancels all orders
-        public String cancelAllOrders()
+        public String CancelAllOrders()
         {
             var endpoint = "/api/v3/cancelallorders";
-            return makeRequest("POST", endpoint);
+            return MakeRequest("POST", endpoint);
+        }
+
+        // Dead Man Switch. Cancels all orders after X
+        public String CancelAllOrdersAfter(int timeoutInSec)
+        {
+            var endpoint = "/api/v3/cancelallordersafter";
+            var postUrl = "timeout=" + timeoutInSec;
+            return MakeRequest("POST", endpoint, postUrl);
         }
 
         // Places or cancels orders in batch
-        public String sendBatchOrder(String jsonElement)
+        public String SendBatchOrder(String jsonElement)
         {
             var endpoint = "/api/v3/batchorder";
             var postBody = "json=" + jsonElement;
-            return makeRequest("POST", endpoint, String.Empty, postBody);
+            return MakeRequest("POST", endpoint, String.Empty, postBody);
         }
 
         // Returns all open orders
-        public String getOpenOrders()
+        public String GetOpenOrders()
         {
             var endpoint = "/api/v3/openorders";
-            return makeRequest("GET", endpoint);
+            return MakeRequest("GET", endpoint);
         }
 
         // Returns filled orders
-        public String getFills(DateTime lastFillTime)
+        public String GetFills(DateTime lastFillTime)
         {
             var endpoint = "/api/v3/fills";
             var postUrl = "lastFillTime=" + lastFillTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-            return makeRequest("GET", endpoint, postUrl, String.Empty);
+            return MakeRequest("GET", endpoint, postUrl);
         }
 
         // Returns filled orders
-        public String getFills()
+        public String GetFills()
         {
             var endpoint = "/api/v3/fills";
-            return makeRequest("GET", endpoint, String.Empty, String.Empty);
+            return MakeRequest("GET", endpoint);
         }
 
         // Returns all open positions
-        public String getOpenPositions()
+        public String GetOpenPositions()
         {
             var endpoint = "/api/v3/openpositions";
-            return makeRequest("GET", endpoint);
+            return MakeRequest("GET", endpoint);
         }
 
         // Returns the platform noticiations
-        public String getNotifications()
+        public String GetNotifications()
         {
             var endpoint = "/api/v3/notifications";
-            return makeRequest("GET", endpoint);
-        }
-
-        // Sends an xbt witdrawal request
-        public String sendWithdrawal(String targetAddress, String currency, Decimal amount)
-        {
-            var endpoint = "/api/v3/withdrawal";
-            var postBody = String.Format("targetAddress={0}&currency={1}&amount={2}", targetAddress, currency, amount);
-            return makeRequest("POST", endpoint, String.Empty, postBody);
+            return MakeRequest("GET", endpoint);
         }
 
         // Returns xbt transfers
-        public String getTransfers(DateTime lastTransferTime)
+        public String GetTransfers(DateTime lastTransferTime)
         {
             var endpoint = "/api/v3/transfers";
             var postUrl = "lastTransferTime=" + lastTransferTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-            return makeRequest("GET", endpoint, postUrl, String.Empty);
+            return MakeRequest("GET", endpoint, postUrl);
         }
 
         // Returns xbt transfers
         public String getTransfers()
         {
             var endpoint = "/api/v3/transfers";
-            return makeRequest("GET", endpoint);
+            return MakeRequest("GET", endpoint);
         }
 
         #endregion

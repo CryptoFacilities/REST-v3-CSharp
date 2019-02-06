@@ -37,6 +37,7 @@ namespace com.cryptofacilities.REST.v3.Examples
         {
             CfApiMethods methods;
             String result, symbol, side, orderType;
+            int cancelAfterTimeout;
             Decimal size, limitPrice, stopPrice;
 
 
@@ -44,21 +45,21 @@ namespace com.cryptofacilities.REST.v3.Examples
             methods = new CfApiMethods(apiPath, checkCertificate);
 
             //get instruments
-            result = methods.getInstruments();
+            result = methods.GetInstruments();
             Console.WriteLine("getInstruments:\n" + result);
 
             //get tickers
-            result = methods.getTickers();
+            result = methods.GetTickers();
             Console.WriteLine("getTickers:\n" + result);
 
             //get orderbook
             symbol = "PI_XBTUSD";
-            result = methods.getOrderBook(symbol);
+            result = methods.GetOrderBook(symbol);
             Console.WriteLine("getOrderBook:\n" + result);
 
             //get history
             symbol = "PI_XBTUSD";
-            result = methods.getHistory(symbol, new DateTime(2016, 01, 20));
+            result = methods.GetHistory(symbol, new DateTime(2016, 01, 20));
             Console.WriteLine("getHistory:\n" + result);
 
 
@@ -66,7 +67,7 @@ namespace com.cryptofacilities.REST.v3.Examples
             methods = new CfApiMethods(apiPath, apiPublicKey, apiPrivateKey, checkCertificate);
 
             //get accounts
-            result = methods.getAccounts();
+            result = methods.GetAccounts();
             Console.WriteLine("getAccounts:\n" + result);
 
             //send limit order
@@ -75,7 +76,7 @@ namespace com.cryptofacilities.REST.v3.Examples
             side = "buy";
             size = 1.0M;
             limitPrice = 1.0M;
-            result = methods.sendOrder(orderType, symbol, side, size, limitPrice);
+            result = methods.SendOrder(orderType, symbol, side, size, limitPrice);
             Console.WriteLine("sendOrder (limit):\n" + result);
 
             //send stop order
@@ -85,77 +86,75 @@ namespace com.cryptofacilities.REST.v3.Examples
             size = 1.0M;
             limitPrice = 1.1M;
             stopPrice = 2.0M;
-            result = methods.sendOrder(orderType, symbol, side, size, limitPrice, stopPrice);
+            result = methods.SendOrder(orderType, symbol, side, size, limitPrice, stopPrice);
             Console.WriteLine("sendOrder (stop):\n" + result);
 
             //cancel order
             var orderId = "5b02d8a4-1655-4409-b26d-c896b87d6df9";
-            result = methods.cancelOrder(orderId);
+            result = methods.CancelOrder(orderId);
             Console.WriteLine("cancelOrder:\n" + result);
 
             //batch order
             var jsonElement = @"{
-        ""batchOrder"":
-            [
-                {
-                    ""order"": ""send"",
-                    ""order_tag"": ""1"",
-                    ""orderType"": ""lmt"",
-                    ""symbol"": ""PI_XBTUSD"",
-                    ""side"": ""buy"",
-                    ""size"": 1,
-                    ""limitPrice"": 1.00,
-                },
-                {
-                    ""order"": ""send"",
-                    ""order_tag"": ""2"",
-                    ""orderType"": ""stp"",
-                    ""symbol"": ""PI_XBTUSD"",             
-                    ""side"": ""buy"",
-                    ""size"": 1,
-                    ""limitPrice"": 2.00,
-                    ""stopPrice"": 3.00,
-                },
-                {
-                    ""order"": ""cancel"",
-                    ""order_id"": ""b8dbe131-5104-4fcf-af90-44321b30a6b8"",
-                },
-            ],
-    }";
-            result = methods.sendBatchOrder(jsonElement);
+                ""batchOrder"":
+                    [
+                        {
+                            ""order"": ""send"",
+                            ""order_tag"": ""1"",
+                            ""orderType"": ""lmt"",
+                            ""symbol"": ""PI_XBTUSD"",
+                            ""side"": ""buy"",
+                            ""size"": 1,
+                            ""limitPrice"": 1.00,
+                        },
+                        {
+                            ""order"": ""send"",
+                            ""order_tag"": ""2"",
+                            ""orderType"": ""stp"",
+                            ""symbol"": ""PI_XBTUSD"",             
+                            ""side"": ""buy"",
+                            ""size"": 1,
+                            ""limitPrice"": 2.00,
+                            ""stopPrice"": 3.00,
+                        },
+                        {
+                            ""order"": ""cancel"",
+                            ""order_id"": ""b8dbe131-5104-4fcf-af90-44321b30a6b8"",
+                        },
+                    ],
+            }";
+            result = methods.SendBatchOrder(jsonElement);
             Console.WriteLine("sendBatchOrder:\n" + result);
 
             //cancel all orders
-            result = methods.cancelAllOrders();
+            result = methods.CancelAllOrders();
             Console.WriteLine("cancelAllOrders:\n" + result);
 
+            //cancel all orders after
+            cancelAfterTimeout = 5;
+            result = methods.CancelAllOrdersAfter(cancelAfterTimeout);
+            Console.WriteLine("cancelAllOrdersAfter:\n" + result);
+
             //get open orders
-            result = methods.getOpenOrders();
+            result = methods.GetOpenOrders();
             Console.WriteLine("getOpenOrders:\n" + result);
 
             //get fills
             var lastFillTime = new DateTime(2016, 2, 1);
-            result = methods.getFills(lastFillTime);
+            result = methods.GetFills(lastFillTime);
             Console.WriteLine("getFills:\n" + result);
 
             //get open positions
-            result = methods.getOpenPositions();
+            result = methods.GetOpenPositions();
             Console.WriteLine("getOpenPositions:\n" + result);
 
             //get notificaitons
-            result = methods.getNotifications();
+            result = methods.GetNotifications();
             Console.WriteLine("getNotifications:\n" + result);
-
-            //send xbt withdrawal request
-            var targetAddress = "xxxxxxxxxxxxx";
-            var currency = "xbt";
-            var amount = 0.123M;
-            result = methods.sendWithdrawal(targetAddress, currency, amount);
-            Console.WriteLine("sendWithdrawal:\n" + result);
 
             //get xbt transfers
             var lastTransferTime = new DateTime(2016, 2, 1);
-            result = methods.getTransfers(lastTransferTime);
+            result = methods.GetTransfers(lastTransferTime);
             Console.WriteLine("getTransfers:\n" + result);
 
             Console.In.ReadLine();
