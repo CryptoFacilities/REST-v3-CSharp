@@ -248,6 +248,14 @@ namespace com.cryptofacilities.REST.v3
             return MakeRequest("GET", endpoint);
         }
 
+        // Returns recent orders
+        public String GetRecentOrders(string symbol=null)
+        {
+            var endpoint = "/api/v3/recentorders";
+            var postUrl = symbol != null ? "symbol=" + symbol : "";
+            return MakeRequest("GET", endpoint, postUrl);
+        }
+
         // Returns the platform noticiations
         public String GetNotifications()
         {

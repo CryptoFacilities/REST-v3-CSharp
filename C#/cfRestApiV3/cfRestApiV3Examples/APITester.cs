@@ -55,7 +55,7 @@ namespace com.cryptofacilities.REST.v3.Examples
             //get orderbook
             symbol = "PI_XBTUSD";
             result = methods.GetOrderBook(symbol);
-            Console.WriteLine("getOrderBook:\n" + result);
+            Console.WriteLine("getOrderBook:\n" + result); 
 
             //get history
             symbol = "PI_XBTUSD";
@@ -147,6 +147,10 @@ namespace com.cryptofacilities.REST.v3.Examples
             //get open positions
             result = methods.GetOpenPositions();
             Console.WriteLine("getOpenPositions:\n" + result);
+
+            //get recent orders
+            result = methods.GetRecentOrders(symbol);
+            Console.WriteLine("getRecentOrders:\n" + result);
 
             //get notificaitons
             result = methods.GetNotifications();
