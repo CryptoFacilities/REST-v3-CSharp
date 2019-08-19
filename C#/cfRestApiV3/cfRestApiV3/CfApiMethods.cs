@@ -22,11 +22,12 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 using System;
+using System.Linq;
 using System.Collections.Specialized;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-
+using System.Collections.Generic;
 
 namespace com.cryptofacilities.REST.v3
 {
@@ -185,6 +186,14 @@ namespace com.cryptofacilities.REST.v3
                 postBody = String.Empty;
             }
 
+            return MakeRequest("POST", endpoint, String.Empty, postBody);
+        }
+
+        // Edits an order
+        public String EditOrder(Dictionary<String,String> parameters)
+        {
+            var endpoint = "/api/v3/editorder";
+            String postBody = string.Join("&", parameters.Select(kv => kv.Key + "=" + kv.Value).ToArray());              
             return MakeRequest("POST", endpoint, String.Empty, postBody);
         }
 

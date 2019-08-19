@@ -22,6 +22,7 @@ IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 using System;
+using System.Collections.Generic;
 
 namespace com.cryptofacilities.REST.v3.Examples
 {
@@ -88,6 +89,15 @@ namespace com.cryptofacilities.REST.v3.Examples
             stopPrice = 2.0M;
             result = methods.SendOrder(orderType, symbol, side, size, limitPrice, stopPrice);
             Console.WriteLine("sendOrder (stop):\n" + result);
+
+            // edit order
+            var edit = new Dictionary<String, String>() {
+                { "orderId", "5b02d8a4-1655-4409-b26d-c896b87d6df9" },
+                { "size", "2" },
+                { "limitPrice", "2" }
+            };
+            result = methods.EditOrder(edit);
+            Console.WriteLine("editOrder:\n" + result);
 
             //cancel order
             var orderId = "5b02d8a4-1655-4409-b26d-c896b87d6df9";
