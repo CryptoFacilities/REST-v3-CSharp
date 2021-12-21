@@ -1,7 +1,7 @@
 ﻿/*
 Crypto Facilities Ltd REST API V3
 
-Copyright (c) 2018 Crypto Facilities
+Copyright (c) 2021 guanlong huang
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the "Software"),
